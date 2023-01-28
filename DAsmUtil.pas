@@ -26,7 +26,7 @@ freely, subject to the following restrictions:
 interface
 
 uses
-  DasmDefs,FixUp,{$IFNDEF XMLx86}DasmOpT{$ELSE}x86Reg,x86Dasm{$ENDIF};
+  System.SysUtils, DasmDefs,FixUp,{$IFNDEF XMLx86}DasmOpT{$ELSE}x86Reg,x86Dasm{$ENDIF};
 
   function Identic(I: integer): integer;
   function ReadByte(var B: integer): boolean;
@@ -1242,7 +1242,7 @@ var
     PutS(Prefix);
     for i:=0 to 3 do
      if (1 shl i)and Flags<>0 then
-       PutCh(Chr(Ord('1')+i));
+       PutCh(AnsiChar(Chr(Ord('1')+i)));
   end ;
 
 
