@@ -418,6 +418,17 @@ begin
   SkipBlock(L);
 end ;
 
+
+function StrLEnd(Str: PAnsiChar; L: Cardinal): PAnsiChar;
+var
+  i: Cardinal;
+begin
+  i := 0;
+  while (i < L) and (Str[i] <> #0) do
+    Inc(i);
+  Result := @Str[i - L];
+end;
+{
 function StrLEnd(Str: PAnsiChar; L: Cardinal): PAnsiChar; assembler;
 asm
         MOV     ECX,EDX
@@ -431,6 +442,8 @@ asm
         MOV     EAX,EDI
         MOV     EDI,EDX
 end;
+}
+
 
 function ReadNDXStr: AnsiString;
 //Was observed only in drConstAddInfo records of MSIL
@@ -557,17 +570,13 @@ begin
   B[0] := ReadByte;
   if B[0] and $1=0 then begin
     Result := SB;
-    asm
-      sar DWORD PTR[Result],1
-    end;
+    Result := Result shr 1;
    end
   else begin
     B[1] := ReadByte;
     if B[0] and $2=0 then begin
       Result := W;
-      asm
-        sar DWORD PTR[Result],2
-      end;
+      Result := Result shr 2;
      end
     else begin
       B[2] := ReadByte;
@@ -575,17 +584,13 @@ begin
       if B[0] and $4=0 then begin
         RL.i := ShortInt(B[2]);
         Result := L;
-        asm
-          sar DWORD PTR[Result],3
-        end;
+        Result := Result shr 3;
        end
       else begin
         B[3] := ReadByte;
         if B[0] and $8=0 then begin
           Result := L;
-          asm
-            sar DWORD PTR[Result],4
-          end;
+          Result := Result shr 4;
          end
         else begin
           B[4] := ReadByte;
