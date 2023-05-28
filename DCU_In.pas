@@ -558,6 +558,20 @@ type
     W: Word;
     i: SmallInt;
   end ;
+  
+  function sar(const base: integer; shift: byte): integer;
+  asm
+    // https://stackoverflow.com/questions/32189509/arithmetic-bitwise-shift-right-a-shr-b-with-signed-integers-that-stored-in-var
+    // TODO: Find a PurePascal version
+    {$IFDEF CPU64BIT}
+    mov eax,ecx
+    mov ecx,edx
+    sar eax,cl
+    {$ELSE}
+    mov ecx,edx
+    sar eax,cl  //shr is very different from sar
+    {$ENDIF}
+  end;
 
 var
   B: packed array[0..7]of byte;
@@ -570,13 +584,13 @@ begin
   B[0] := ReadByte;
   if B[0] and $1=0 then begin
     Result := SB;
-    Result := Result shr 1;
+    Result := sar(Result,1);
    end
   else begin
     B[1] := ReadByte;
     if B[0] and $2=0 then begin
       Result := W;
-      Result := Result shr 2;
+      Result := sar(Result,2);
      end
     else begin
       B[2] := ReadByte;
@@ -584,13 +598,13 @@ begin
       if B[0] and $4=0 then begin
         RL.i := ShortInt(B[2]);
         Result := L;
-        Result := Result shr 3;
+        Result := sar(Result,3);
        end
       else begin
         B[3] := ReadByte;
         if B[0] and $8=0 then begin
           Result := L;
-          Result := Result shr 4;
+          Result := sar(Result,4);
          end
         else begin
           B[4] := ReadByte;
