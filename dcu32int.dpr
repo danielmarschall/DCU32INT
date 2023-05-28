@@ -1,10 +1,3 @@
-{$A+,B-,C+,D+,E-,F-,G+,H+,I+,J+,K-,L+,M-,N+,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
-{$APPTYPE CONSOLE}
-{$IFDEF ConditionalExpressions}
-{$WARN UNSAFE_TYPE OFF}
-{$WARN UNSAFE_CODE OFF}
-{$WARN UNSAFE_CAST OFF}
-{$ENDIF}
 program dcu32int;
 (*
 The main module of the DCU32INT utility by Alexei Hmelnov.
@@ -31,6 +24,18 @@ freely, subject to the following restrictions:
    distribution.
 *)
 //  {$IFNDEF LINUX}Windows,{$ELSE}LinuxFix,{$ENDIF}
+
+{$A+,B-,C+,D+,E-,F-,G+,H+,I+,J+,K-,L+,M-,N+,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
+
+{$APPTYPE CONSOLE}
+
+{$IFDEF CONDITIONALEXPRESSIONS} { Delphi 6+ }
+  {$IF CompilerVersion >= 15.0} { Delphi 7+ }
+    {$WARN UNSAFE_TYPE OFF}  { available since Delphi 7 }
+    {$WARN UNSAFE_CODE OFF}  { available since Delphi 7 }
+    {$WARN UNSAFE_CAST OFF}  { available since Delphi 7 }
+  {$IFEND}
+{$ENDIF}
 
 uses
   SysUtils,{$IFDEF UNICODE}AnsiStrings,{$ENDIF}
