@@ -113,7 +113,7 @@ const
   drRes=$72{'r'};
   drAsm=$73{'s'}; //Found in D5 Debug versions
   drAssemblySrc=$74{'t'}; //For .net assembly the *.DCP is generated automatically, so the assembly is its source
-  drStop2=$9F{'џ'}; //!!!
+  drStop2=$9F{'Её'}; //!!!
   drConst=$25{'%'};
   drResStr=$32{'2'};
   drType=$2A{'*'};
@@ -3023,7 +3023,7 @@ begin
            break;
          {TStrConstTypeDef.Create;}
          Decl := TStrConstDecl.Create;
-        {//м.б. надо регистрировать в таблице адресов
+        {//Г¬.ГЎ. Г­Г Г¤Г® Г°ГҐГЈГЁГ±ГІГ°ГЁГ°Г®ГўГ ГІГј Гў ГІГ ГЎГ«ГЁГ¶ГҐ Г Г¤Г°ГҐГ±Г®Гў
          ReadStr;
          ReadUIndex;
          ReadUIndex;
@@ -4310,7 +4310,7 @@ begin
      //which we describe here:
       BVer := Magic shr 24;
       PlMagic := Magic and $FF;
-      if (BVer<=$21{10_3Rio})and(BVer>=$1B{XE6})and(PlMagic=$4D)or
+      if (BVer<=$23{11_Alexandria})and(BVer>=$1B{XE6})and(PlMagic=$4D)or
          (BVer<=$1A{XE5})and(BVer>=$17{XE2})and(PlMagic=$4B)
       then begin
         PlMagic := (Magic shr 8)and $FF;
