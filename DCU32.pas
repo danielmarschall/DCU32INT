@@ -1,4 +1,4 @@
-unit DCU32;
+﻿unit DCU32;
 (*
 The DCU parser module of the DCU32INT utility by Alexei Hmelnov.
 (All the DCU data structures are described here and in the DCURecs module)
@@ -76,11 +76,13 @@ const {My own (AX) codes for Delphi/Kylix versions, the Delphi codes
   verD_10=23; //10 Seattle
   verD_10_1=24; //10.1 Berlin
   verD_10_2=25; //10.2 Tokyo
-  verD_10_3=26; //10.2 Tokyo
+  verD_10_3=26; //10.3 Rio
+  verD_10_4=27; //10.4 Sydney
+  verD_11=28; //11 Alexandria
   verK1=100; //Kylix 1.0
   verK2=101; //Kylix 2.0
   verK3=102; //Kylix 3.0
-  MaxDelphiVer = 26;
+  MaxDelphiVer = 28;
 
 type
   TDCUPlatform = (dcuplWin32,dcuplWin64,dcuplOsx32,dcuplIOSEmulator,
@@ -667,7 +669,7 @@ const
   verStrDelphi: array[0..MaxDelphiVer]of String = (
     'Error','Error 1','2','3','4','5','6','7','8','2005','2006','?2007','2009',
     'Error 13','2010','XE','XE2','XE3','XE4','XE5','XE6','XE7','XE8','10 Seattle',
-    '10.1 Berlin','10.2 Tokyo','10.3 Rio');
+    '10.1 Berlin','10.2 Tokyo','10.3 Rio','10.4 Sydney','11 Alexandria');
   platfStr: array[TDCUPlatform]of String = ('Win32','Win64','Osx32',
     'iOSEmulator','iOSDevice','iOSDevice64','Android','Linux64');
 begin

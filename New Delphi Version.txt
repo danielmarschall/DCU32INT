@@ -1,0 +1,23 @@
+
+What to change when there is a new Delphi version?
+(assuming that there are no critical updates to the DCU specification)
+
+
+D:\Git\DCU32INT
+
+DCU32.pas:
+
+- Add verD_...
+
+- Change MaxDelphiVer
+
+- Change verStrDelphi
+
+- Change ReadMagic ( Line "if (BVer<=$xx{xxx})and(BVer>=$1B{XE6})and(PlMagic=$4D)or" )
+
+
+DCUTbl.pas:
+
+- Change sVerName
+
+- Change GetDelphiLibDir (sPath)
