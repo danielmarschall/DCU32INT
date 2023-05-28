@@ -26,7 +26,7 @@ freely, subject to the following restrictions:
 interface
 
 uses
-  System.SysUtils, DasmDefs,FixUp,{$IFNDEF XMLx86}DasmOpT{$ELSE}x86Reg,x86Dasm{$ENDIF};
+  SysUtils, DasmDefs,FixUp,{$IFNDEF XMLx86}DasmOpT{$ELSE}x86Reg,x86Dasm{$ENDIF};
 
   function Identic(I: integer): integer;
   function ReadByte(var B: integer): boolean;
@@ -258,7 +258,7 @@ function GetIntData(hDSize,Ofs:Byte;var I: LongInt): boolean;
 implementation
 
 uses
-  {$IFDEF UNICODE}AnsiStrings{$ELSE}SysUtils{$ENDIF},
+  {$IFDEF UNICODE}AnsiStrings{$ENDIF},
   {$IFNDEF XMLx86}op{$ELSE}x86Defs,x86Op,TypInfo{$ENDIF}, {DCU_In,} DCU_Out;
 
 var
@@ -524,7 +524,7 @@ var
 begin
   Result := false;
   SExt := S and $1;
-  if not im(BWTbl[(W and 1)and not (SExt){При SExt - используется непоср. байт}])
+  if not im(BWTbl[(W and 1)and not (SExt){ГЏГ°ГЁ SExt - ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г­ГҐГЇГ®Г±Г°. ГЎГ Г©ГІ}])
   then
     Exit;
   if SExt<>0 then
