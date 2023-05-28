@@ -560,9 +560,15 @@ type
   end ;
   
   function sar(const base: integer; shift: byte): integer;
+  begin
+    // https://stackoverflow.com/questions/31879878/how-can-i-perform-arithmetic-right-shift-in-c-in-a-portable-way
+    if base >= 0 then
+      result := base shr shift
+    else
+      result := not ((not base) shr shift);
+  (*
   asm
     // https://stackoverflow.com/questions/32189509/arithmetic-bitwise-shift-right-a-shr-b-with-signed-integers-that-stored-in-var
-    // TODO: Find a PurePascal version
     {$IFDEF CPU64BIT}
     mov eax,ecx
     mov ecx,edx
@@ -571,6 +577,7 @@ type
     mov ecx,edx
     sar eax,cl  //shr is very different from sar
     {$ENDIF}
+  *)
   end;
 
 var
