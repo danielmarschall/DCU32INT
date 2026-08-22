@@ -1,3 +1,10 @@
+{$A+,B-,C+,D+,E-,F-,G+,H+,I+,J+,K-,L+,M-,N+,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
+{$APPTYPE CONSOLE}
+{$IFDEF ConditionalExpressions}
+{$WARN UNSAFE_TYPE OFF}
+{$WARN UNSAFE_CODE OFF}
+{$WARN UNSAFE_CAST OFF}
+{$ENDIF}
 program dcu32int;
 (*
 The main module of the DCU32INT utility by Alexei Hmelnov.
@@ -25,37 +32,37 @@ freely, subject to the following restrictions:
 *)
 //  {$IFNDEF LINUX}Windows,{$ELSE}LinuxFix,{$ENDIF}
 
-{$A+,B-,C+,D+,E-,F-,G+,H+,I+,J+,K-,L+,M-,N+,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
-
-{$APPTYPE CONSOLE}
-
-{$IFDEF CONDITIONALEXPRESSIONS} { Delphi 6+ }
-  {$IF CompilerVersion >= 15.0} { Delphi 7+ }
-    {$WARN UNSAFE_TYPE OFF}  { available since Delphi 7 }
-    {$WARN UNSAFE_CODE OFF}  { available since Delphi 7 }
-    {$WARN UNSAFE_CAST OFF}  { available since Delphi 7 }
-  {$IFEND}
-{$ENDIF}
-
 uses
-  SysUtils,{$IFDEF UNICODE}AnsiStrings,{$ENDIF}
-  DCU32 in 'DCU32.pas',
-  DCUTbl in 'DCUTbl.pas',
-  DCU_In in 'DCU_In.pas',
-  DCU_Out in 'DCU_Out.pas',
-  FixUp in 'FixUp.pas',
-  DCURecs in 'DCURecs.pas',
-  DasmDefs in 'DasmDefs.pas',
-  DasmUtil in 'DasmUtil.pas',
- {$IFDEF XMLx86}
+  SysUtils,
+  {$IFDEF UNICODE}
+  AnsiStrings,
+  {$ENDIF }
+  DCU32 in 'src\DCU32.pas',
+  DCUTbl in 'src\DCUTbl.pas',
+  DCU_In in 'src\DCU_In.pas',
+  DCU_Out in 'src\DCU_Out.pas',
+  FixUp in 'src\FixUp.pas',
+  DCURecs in 'src\DCURecs.pas',
+  DasmDefs in 'src\DasmDefs.pas',
+  DasmUtil in 'src\DasmUtil.pas',
+  {$IFDEF XMLx86}
+  {$IFDEF OpSem}
+  RefCnt in 'SEM\RefCnt.pas',
+  SemExpr in 'SEM\SemExpr.pas',
+  //SemX86 in 'SEM\SemX86.pas',
+  DasmDF in 'SEM\DasmDF.pas',
+  x86DasmSem in 'SEM\x86DasmSem.pas',
+  {$ENDIF}
   x86Reg in '80x86\x86Reg.pas',
   x86Defs in '80x86\x86Defs.pas',
   x86Op in '80x86\x86Op.pas',
- {$ENDIF}
-  DasmCF in 'DasmCF.pas',
-  DCP in 'DCP.pas',
-  DasmX86 in 'DasmX86.pas',
-  DasmMSIL in 'DasmMSIL.pas';
+  {$ENDIF }
+  DasmCF in 'src\DasmCF.pas',
+  DasmProc in 'src\DasmProc.pas',
+  DCP in 'src\DCP.pas',
+  DasmX86 in 'src\DasmX86.pas',
+  DasmMSIL in 'src\DasmMSIL.pas',
+  Win64SEH in 'src\Win64SEH.pas';
 
 {$R *.res}
 
@@ -88,6 +95,7 @@ begin
   '    T(-) - show Type table'#13#10+
   '    U(-) - show Units of imported names'#13#10+
   '    V(-) - show auxiliary Values'#13#10+
+  '    n(-) - show Name hashes'#13#10+
   '    v(-) - show VMT'#13#10+
   ' -O<option>* - code generation options, default: (+) - on, (-) - off'#13#10+
   '    V(-) - typed constants as Variables'#13#10+
@@ -98,6 +106,7 @@ begin
   ' -LD - use debug libraries (used by -U with *)'#13#10+
   ' -P<paths> - Pascal source directories (just "-P" means: "seek for *.pas in'#13#10+
   '    the unit directory"). Without this parameter src lines won''t be reported'#13#10+
+  '    trailing "\" in the path item means "include subfolders"'#13#10+
   ' -R<Alias>=<unit>[;<Alias>=<unit>]* - set unit aliases'#13#10+
   ' -N<Prefix> - No Name Prefix ("%" - Scope char)'#13#10+
   ' -F<FMT> - output format (T - text (default), H-HTML)'#13#10+
@@ -116,6 +125,7 @@ end ;
 const
   DCUName: String = '';
   FNRes: String = '';
+  OutRedir: boolean = false;
 
 { Queries: }
 type
@@ -145,9 +155,9 @@ begin
           Exit;
          end ;
         'S': begin
-          if Length(PS)=2 then
+          if (Length(PS)=2) then
             SetShowAll
-          else begin
+          else
             for j:=3 to Length(PS) do begin
               Ch := {UpCase(}PS[j]{)};
               case Ch of
@@ -167,12 +177,12 @@ begin
                 'U': ShowImpNamesUnits := true;
                 'V': ShowAuxValues := true;
                 'v': ShowVMT := true;
+                'n': ShowNameHashes := true;
               else
                 Writeln('Unknown show flag: "',Ch,'"');
                 Exit;
               end ;
             end ;
-          end ;
         end ;
         'Q': begin
           if Length(PS)=2 then
@@ -213,7 +223,9 @@ begin
            'F': begin
              Delete(PS,1,3);
              if PS='' then
-               PS := ExtractFilePath(ParamStr(0))+'Config.ini';
+               PS := 'Config.ini';
+             if ExtractFilePath(PS)='' then
+               PS := ExtractFilePath(ParamStr(0))+PS;
              LibConfigFN := PS;
             end ;
            'D': PreferDebugLib := true;
@@ -395,8 +407,7 @@ begin
         ShowParentMethods(U1,TOOTypeDef(TD).hParent);
         ShowMethods(U1,'<METHODS>',TOOTypeDef(TD).Fields);
       end ;
-      {
-  VMCnt: TNDX;//number of virtual methods
+      {VMCnt: TNDX;//number of virtual methods
       end ;}
       Writer.NLOfs := 2;
       NL;
@@ -424,7 +435,7 @@ begin
   Result := Copy(FNRes,1,CP-PChar(FNRes))+ChangeFileExt(FN,'')+Copy(FNRes,CP-PChar(FNRes)+2,MaxInt);
 end ;
 
-procedure ProcessExc(E: Exception; OutRedir: boolean);
+procedure ProcessExc(E: Exception);
 var
   ExcS: AnsiString;
 begin
@@ -441,7 +452,7 @@ begin
 end;
 
 
-function ProcessUnit(FN: String; OutRedir: boolean): Integer;
+function ProcessUnit(FN: String): Integer;
 var
   U: TUnit;
 begin
@@ -463,7 +474,7 @@ begin
     end ;
   except
     on E: Exception do begin
-      ProcessExc(E,OutRedir);
+      ProcessExc(E);
       Result := 1;
     end ;
   end ;
@@ -472,13 +483,14 @@ end;
 function ProcessFile(const FN: String): integer {ErrorLevel};
 var
   NS,Ext,UnitFN: String;
-  IsDCP,OutRedir: boolean;
+  IsDCP: boolean;
  // CP: PChar;
   Pkg: TDCPackage;
   i: Integer;
   Writer: TBaseWriter;
 begin
   Result := 0;
+  OnException := ProcessExc;
   OutRedir := false;
   if FNRes='-' then
     FNRes := ''
@@ -508,7 +520,7 @@ begin
       Writer := InitOut(FNRes);
       try
         if not IsDCP then
-          Result := ProcessUnit(FN,OutRedir)
+          Result := ProcessUnit(FN)
         else begin
           Pkg := LoadPackage(FN,true{IsMain});
           if Pkg=Nil then
@@ -519,7 +531,7 @@ begin
           for i:=0 to Pkg.Count-1 do begin
             UnitFN := FN+PkgSep+Pkg[i]+Ext; //It is easier to find it by name
             MainUnit := Nil;
-            if ProcessUnit(UnitFN,OutRedir)<>0 then
+            if ProcessUnit(UnitFN)<>0 then
               Result := 1;
             NL;
           end;
@@ -529,13 +541,14 @@ begin
       end ;
     except
       on E: Exception do begin //Catch InitOut or FreeDCU errors
-        ProcessExc(E,OutRedir);
+        ProcessExc(E);
         Result := 1;
       end ;
     end ;
   finally
     if OutRedir then begin
-      Writeln(Format('Total %d lines generated.',[Writer.OutLineNum]));
+      if Writer<>Nil then
+        Writeln(Format('Total %d lines generated.',[Writer.OutLineNum]));
       Close(Output);
     end ;
     Writer.Free;

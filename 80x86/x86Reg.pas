@@ -26,6 +26,12 @@ freely, subject to the following restrictions:
 *)
 interface
 
+{$IFDEF OpSem}
+uses
+  SemExpr{,
+  SemX86};
+{$ENDIF}
+
 const
   MaxRegCount = 16;
 
@@ -35,13 +41,13 @@ type
   TRegNum = 0..MaxRegCount-1;
 
   TRegInfo = record
-    Name: String;
+    Name: AnsiString;
     hReg: TRegNum; //The parent register
     Base: Byte; //Bit offset in Reg
   end ;
 
   TRegTblInfo = record
-    Name: String;
+    Name: AnsiString;
     Size: Byte;
     Cnt: Byte;
     hParent: TRegTblIndex;
@@ -108,7 +114,10 @@ const
   nbRB64 = Ord(rtRB64)shl 8;
   nbRB = Ord(rtRB)shl 8;
   nbSeg = Ord(rtSeg)shl 8;
+  nbXMM = Ord(rtXMM)shl 8;
+
   nbMask = $FF00;
+  nbMaskRegIndex = $FF;
 
 //Results of EncodeRegIndex
   hnRax = hbRQ+0;
@@ -191,8 +200,15 @@ type
 function EncodeRegIndex(Tbl: TRegTblIndex; hReg: TRegNum): TRegIndex;
 function DecodeRegTbl(RegCode: TRegIndex): TRegTblIndex;
 
-function GetRegName0(Tbl: TRegTblIndex; hReg: TRegNum): String;
-function GetRegName(RegCode: TRegIndex): String;
+function GetRegName0(Tbl: TRegTblIndex; hReg: TRegNum): AnsiString;
+function GetRegName(RegCode: TRegIndex): AnsiString;
+
+function GetRegLoPartBySize(hReg: TRegIndex; Sz: Integer): TRegIndex;
+
+{$IFDEF OpSem}
+function GetRegisterExpr0(Tbl: TRegTblIndex; hReg: TRegNum): TSemReg;
+function GetRegisterExpr(RegCode: TRegIndex): TSemReg;
+{$ENDIF}
 
 implementation
 
@@ -208,7 +224,7 @@ begin
   Result := TRegTblIndex(RegCode shr 8);
 end ;
 
-function GetRegName0(Tbl: TRegTblIndex; hReg: TRegNum): String;
+function GetRegName0(Tbl: TRegTblIndex; hReg: TRegNum): AnsiString;
 begin
   if hReg>=RegTblInfo[Tbl].Cnt then begin
     Result := '';
@@ -217,9 +233,89 @@ begin
   Result := RegTblInfo[Tbl].Reg[hReg].Name;
 end ;
 
-function GetRegName(RegCode: TRegIndex): String;
+function GetRegName(RegCode: TRegIndex): AnsiString;
 begin
   Result := GetRegName0(DecodeRegTbl(RegCode),DecodeRegIndex(RegCode));
 end ;
 
+function GetRegLoPartBySize(hReg: TRegIndex; Sz: Integer): TRegIndex;
+begin
+  case Sz of
+   1: Result := nbRB64;
+   2: Result := nbRW;
+   3,4: Result := nbRD;
+   5..8: Result := hbRQ;
+  else
+    Result := hReg; //Something is wrong - leave unchanged
+    Exit;
+  end;
+  Result := Result + (hReg and nbMaskRegIndex);
+end;
+
+
+{$IFDEF OpSem}
+var
+  RegTblMem: array[TRegTblIndex] of array[TRegNum]of TSemReg;
+
+function GetRegisterExpr0(Tbl: TRegTblIndex; hReg: TRegNum): TSemReg;
+begin
+  if hReg>=RegTblInfo[Tbl].Cnt then begin
+    Result := Nil;
+    Exit;
+  end ;
+  Result := RegTblMem[Tbl][hReg];
+end ;
+
+function GetRegisterExpr(RegCode: TRegIndex): TSemReg;
+begin
+  Result := GetRegisterExpr0(DecodeRegTbl(RegCode),DecodeRegIndex(RegCode));
+end ;
+
+procedure InitRegisters;
+var
+  rt: TRegTblIndex;
+  i: Integer;
+  R: TSemReg;
+begin
+  FillChar(RegTblMem,SizeOf(RegTblMem),0);
+  for rt := Succ(Low(TRegTblIndex)) to High(TRegTblIndex) do
+   with RegTblInfo[rt] do begin
+     for i := 0 to Cnt-1 do begin
+       with Reg[i] do begin
+         R := Nil;
+         if hSibling>rtNone then begin
+           R := RegTblMem[hSibling][i]; //Indices of the same register in the sibling tables coincide
+           if R.Name<>Name then
+             R := Nil;
+         end ;
+         if R<>Nil then
+         else if hParent>rtNone then
+           R := TSemRegPart.Create(Name,RegTblMem[hParent][hReg],Base,Size)
+         else
+           R := TSemReg.Create(Name,Size);
+       end ;
+       RegTblMem[rt][i] := R;
+       R.SetInfiniteLife{AddRef};
+     end ;
+   end ;
+end ;
+
+procedure DoneRegisters;
+var
+  rt: TRegTblIndex;
+  i: Integer;
+begin
+  for rt := High(TRegTblIndex) downto Succ(Low(TRegTblIndex)) do
+    for i := 0 to RegTblInfo[rt].Cnt-1 do
+      RegTblMem[rt][i].DeRef;
+end ;
+{$ENDIF}
+
+
+{$IFDEF OpSem}
+initialization
+  InitRegisters;
+finalization
+  DoneRegisters;
+{$ENDIF}
 end.

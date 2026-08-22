@@ -1,0 +1,1 @@
+pwsh -Command "& {$md = ConvertFrom-Markdown -Path .\readme.md; $md | Get-Member ; $md.Html | Out-File -Encoding utf8 .\pub\readme.html}"

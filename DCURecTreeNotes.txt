@@ -1,0 +1,12 @@
+FAR: 
+
+^T(.+) = class\(T(.+)\)$
+$1 = $2
+procedure visit$1($1: T$1); virtual;
+
+Delphi:
+
+^T{.+} = class\(T{.+}\) *$
+procedure visit\0(\0: T\0); virtual;
+
+procedure TDCURecVisitor.visit\0(\0: T\0);\nbegin\nvisit\1(\0);\nend ;\n

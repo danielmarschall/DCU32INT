@@ -299,7 +299,8 @@ const
 
 type
   TArgAddrType = (at_None,
-    at_a,at_b,at_bcd,at_bs,at_bss,at_d,at_da,at_di,at_do,at_dq,
+    at_a,at_b,at_bcd,at_bs,at_bss,at_d,at_da,at_di,at_do,
+    at_dp{Added by AX to replace at_do, when at_qp is present},at_dq,
     at_dqa,at_dqp,at_dr,at_e,at_er,at_p,at_pd,at_pi,at_ps,at_psq,at_ptp,at_q,
     at_qa,at_qi,at_qp,at_qs,at_s,at_sd,at_sr,at_ss,at_st,at_stx,at_v,at_va,at_vds,
     at_vq,at_vqp,at_vs,at_w,at_wa,at_wi,at_wo,at_ws);
@@ -316,10 +317,10 @@ type
   TAddrTypeFlags = set of TAddrTypeFlag;
 
   TAddrTypeProps = record
-    Sz: array[TSizeFlagVal]of TOpSize;
-    M: Byte; //Bit mask of TSizeFlagVal codes? - not sure now
+    Sz: array[TSizeFlagVal]of TOpSize; //The operand size for the code
+    M: Byte; //Bit mask of supported TSizeFlagVal codes
     Cnt: Byte;
-    Factor: TOpSizeFactor;
+    Factor: TOpSizeFactor; //The attribute used to compute the TSizeFlagVal code
     F: TAddrTypeFlags;
   end ;
 
@@ -343,6 +344,7 @@ const
    {at_da}(Sz:(osNone,osDWord,osNone);M:2;Cnt:1;Factor:sfAS), //Doubleword, according to address-size attribute (only JECXZ instruction)
    {at_di}(Sz:(osDWord,osDWord,osDWord);M:1;Cnt:1;F:[atSigned]), //Doubleword-integer. Only x87 FPU instructions (for example, FIADD)
    {at_do}(Sz:(osNone,osDWord,osNone);M:2;Cnt:1;Factor:sfOS), //Doubleword, according to current operand size (e. g., MOVSD instruction)
+   {at_dp}(Sz:(osQWord,osNone,osNone);M:1;Cnt:1;Factor:sfRexW), //Doubleword, when REX.W=0 (Added by AX to replace at_do, when at_qp is present)
    {at_dq}(Sz:(osQWord,osQWord,osQWord);M:1;Cnt:2), //Double-quadword, regardless of operand-size attribute (for example, CMPXCHG16B)
       //!!!In fact depends on REX.W for CMPXCHG16B - the spec. should be fixed
    {at_dqa}(Sz:(osDWord,osQWord,osNone);M:3;Cnt:1;Factor:sfAS;F:[atSignExt,atSigned]), //Doubleword or quadword, according to address-size attribute (only REP and LOOP families)
@@ -416,7 +418,7 @@ const
   );
 }
 const
-  FlagChars: array[TProcessorFlag]of Char = 'ODISZAPC';
+  FlagChars: array[TProcessorFlag]of AnsiChar = 'ODISZAPC';
 
 type
   PPrimaryOpcode = ^TPrimaryOpcode;
