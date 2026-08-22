@@ -1,0 +1,21 @@
+
+What to change when there is a new Delphi version?
+(assuming that there are no critical updates to the DCU specification)
+
+
+src\DCU32.pas:
+
+- Add verD_...
+
+- Change MaxDelphiVer
+
+- Change verStrDelphi
+
+- Change DecodeMagic ( Line ... BVer<=$xx{xxx} ... )
+
+
+src\DCUTbl.pas:
+
+- Change sVerName
+
+- Change GetDelphiLibDir (sPath)

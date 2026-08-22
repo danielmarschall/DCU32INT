@@ -81,10 +81,11 @@ const {My own (AX) codes for Delphi/Kylix versions, the Delphi codes
   verD_10_4=27; //10.4 Sydney
   verD_11=28; //11 Alexandria
   verD_12=29; //12 Athens
+  verD_13=37; //13 Florence
   verK1=100; //Kylix 1.0
   verK2=101; //Kylix 2.0
   verK3=102; //Kylix 3.0
-  MaxDelphiVer = 29;
+  MaxDelphiVer = 37;
 
 type
   TDCUPlatform = (dcuplWin32,dcuplWin64,dcuplOsx32,dcuplOsx64,dcuplOsxArm64,
@@ -689,7 +690,8 @@ const
   verStrDelphi: array[0..MaxDelphiVer]of String = (
     'Error','Error 1','2','3','4','5','6','7','8','2005','2006','?2007','2009',
     'Error 13','2010','XE','XE2','XE3','XE4','XE5','XE6','XE7','XE8','10 Seattle',
-    '10.1 Berlin','10.2 Tokyo','10.3 Rio','10.4 Sydney','11 Alexandria','12 Athens');
+    '10.1 Berlin','10.2 Tokyo','10.3 Rio','10.4 Sydney','11 Alexandria','12 Athens',
+    '', '', '', '', '', '', '', '13 Florence');
   platfStr: array[TDCUPlatform]of String = ('Win32','Win64','Osx32','Osx64','OsxArm64',
     'iOSEmulator','iOSSimArm64','iOSDevice','iOSDevice64',
     'Android','Android64','Linux64');
@@ -4454,7 +4456,7 @@ begin
      //which we describe here:
       BVer := Magic shr 24;
       PlMagic := Magic and $FF;
-      if (BVer<=$24{12Athens})and(BVer>=$1B{XE6})and(PlMagic=$4D)or
+      if (BVer<=$25{13Florence})and(BVer>=$1B{XE6})and(PlMagic=$4D)or
          (BVer<=$1A{XE5})and(BVer>=$17{XE2})and(PlMagic=$4B)
       then begin
         PlMagic := (Magic shr 8)and $FF;

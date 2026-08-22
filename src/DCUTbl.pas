@@ -132,7 +132,8 @@ const
     '10_3Rio', //10.3 Rio
     '10_4Sydney', //10.4 Sydney
     '11Alexandria', //11 Alexandria
-    '12Athens' //11 Athens
+    '12Athens', //12 Athens
+    '', '', '', '', '', '', '', '13Florence' //13 Florence
   );
 begin
   if Ver<verK1 then
@@ -234,6 +235,10 @@ begin
    verD_10_1: sPath := 'SOFTWARE\Embarcadero\BDS\18.0';
    verD_10_2: sPath := 'SOFTWARE\Embarcadero\BDS\19.0';
    verD_10_3: sPath := 'SOFTWARE\Embarcadero\BDS\20.0';
+   verD_10_4: sPath := 'SOFTWARE\Embarcadero\BDS\21.0';
+   verD_11: sPath := 'SOFTWARE\Embarcadero\BDS\22.0';
+   verD_12: sPath := 'SOFTWARE\Embarcadero\BDS\23.0';
+   verD_13: sPath := 'SOFTWARE\Embarcadero\BDS\37.0';
   else
     Exit;
   end ;
