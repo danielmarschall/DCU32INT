@@ -19,3 +19,10 @@ src\DCUTbl.pas:
 - Change sVerName
 
 - Change GetDelphiLibDir (sPath)
+
+
+Config.ini
+
+
+readme.md
+
