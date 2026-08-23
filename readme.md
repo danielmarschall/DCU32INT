@@ -1,5 +1,5 @@
 # The DCU32INT utility by Alexei Hmelnov.
-## Version 1.29.1
+## Version 1.29.1 (ViaThinkSoft Patch)
 
 E-Mail: <alex@icc.ru>\
 Site: <http://hmelnov.icc.ru/DCU/>
@@ -27,6 +27,8 @@ Parse
   Android 32/64 (no code), Linux 64 (may be - not checked,no code)), 
 * 12 Athens (WIN32, WIN64; no code: OSX64, osxarm64, iOS device 64,
   ios Simulator Arm64, Android 32/64, Linux 64),
+* 13 Florence (WIN32, WIN64; no code: OSX64, osxarm64, iOS device 64,
+  ios Simulator Arm64, Android 32/64, Linux 64),
 * Kylix 1.0-3.0 units (DCU) 
 
 and convert their information into the close to Pascal form.
@@ -41,6 +43,10 @@ I have done my best to make it useful.
 
 
 ## Changes from the version 1.0
+
+### Version 1.29.1 (ViaThinkSoft Patch):
+
+1. The units of Delphi 13 Florence are supported now. (not 100% sure if all features are implemented)
 
 ### Version 1.29.1:
 
